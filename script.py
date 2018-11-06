@@ -26,14 +26,14 @@ class SearchScriptBase(ScriptBase):
     
     def regex_filter(self, title='', include_regex_filters=[], exclude_regex_filters=[]):
         for regex in include_regex_filters:
-            if not re.search(r'(BIG5|繁体|繁體)', title):
+            if not re.search(regex, title):
                 if os.getenv('TEST_RUN'):
                     print('filter by include_regex_filters')
                 return False;
             pass
 
         for regex in exclude_regex_filters:
-            if re.search(r'(HEVC|MKV|H265)', title):
+            if re.search(regex, title):
                 if os.getenv('TEST_RUN'):
                     print('filter by exclude_regex_filters')
                 return False;
@@ -86,6 +86,7 @@ class SearchScriptBase(ScriptBase):
             return ret
         else:
             return {}
+
 
 if __name__ == '__main__':
     os.environ["TEST_RUN"] = '1'
