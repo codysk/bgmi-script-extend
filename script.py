@@ -1,9 +1,13 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals
 
-import datetime, re, os
+import datetime, re, os, imp
+import importlib
 from bgmi.script import ScriptBase
 from bgmi.lib.fetch import DATA_SOURCE_MAP
+file, pathname, desc = imp.find_module('search_source', [os.path.split(os.path.realpath(__file__))[0]])
+imp.load_module('search_source', file, pathname, desc)
+import search_source
 
 class SearchScriptBase(ScriptBase):
     class Model(ScriptBase.Model):
@@ -56,10 +60,7 @@ class SearchScriptBase(ScriptBase):
         :return: dict
         """
         if self.source is not None:
-            source = DATA_SOURCE_MAP.get(self.source, None)()
-            if source is None:
-                raise Exception('Script data source is invalid, usable sources: {}'
-                               .format(', '.join(DATA_SOURCE_MAP.keys())))
+            source = self.get_source(self.source)
             ret = {}
             data = source.search_by_keyword(self.Model.keyword)
             if os.getenv('TEST_RUN'):
@@ -87,6 +88,21 @@ class SearchScriptBase(ScriptBase):
         else:
             return {}
 
+    def get_source(self, source):
+        try:
+            source_instance = DATA_SOURCE_MAP.get(source, None)()
+            return source_instance
+        except Exception as e:
+            source_instance = None
+        
+        source_instance = importlib.import_module('search_source.%s' % (source))
+        source_instance = getattr(source_instance, source)()
+
+        if source_instance is None:
+                raise Exception('Script data source is invalid, usable sources: {}'
+                               .format(', '.join(DATA_SOURCE_MAP.keys())))
+        
+        return source_instance
 
 if __name__ == '__main__':
     os.environ["TEST_RUN"] = '1'
