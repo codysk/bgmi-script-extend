@@ -7,7 +7,7 @@ from bgmi.script import ScriptBase
 from bgmi.lib.fetch import DATA_SOURCE_MAP
 file, pathname, desc = imp.find_module('search_source', [os.path.split(os.path.realpath(__file__))[0]])
 imp.load_module('search_source', file, pathname, desc)
-import search_source
+import search_source.base as search_base
 
 class SearchScriptBase(ScriptBase):
     class Model(ScriptBase.Model):
@@ -94,15 +94,20 @@ class SearchScriptBase(ScriptBase):
             return source_instance
         except Exception as e:
             source_instance = None
-        
-        source_instance = importlib.import_module('search_source.%s' % (source))
-        source_instance = getattr(source_instance, source)()
+
+
+        try:
+            source_instance = importlib.import_module('search_source.%s' % (source))
+            source_instance = getattr(source_instance, source)()
+        except Exception as e:
+            source_instance = None
 
         if source_instance is None:
-                raise Exception('Script data source is invalid, usable sources: {}'
-                               .format(', '.join(DATA_SOURCE_MAP.keys())))
+                raise Exception('Script data source is invalid, usable subscript sources: {}; search sources: {}'
+                               .format((', '.join(DATA_SOURCE_MAP.keys())), (',').join(search_base.sources())))
         
         return source_instance
+
 
 if __name__ == '__main__':
     os.environ["TEST_RUN"] = '1'
