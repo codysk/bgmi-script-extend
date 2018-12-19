@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import re, os, json
 import importlib
-import search_source.base as Base
+Base = importlib.import_module('.base', __package__)
 
 import requests
 from bgmi.utils import print_error
