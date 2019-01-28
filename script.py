@@ -78,12 +78,14 @@ class SearchScriptBase(ScriptBase):
 
                 if int(i['episode']) > 2000:
                     if os.getenv('TEST_RUN'):
-                        print('invalid episode: %d' %(i['episode']))
+                        print('invalid episode: %d' % (i['episode']))
                     continue;
-                if int(i['episode']) not in data:
+                if int(i['episode']) in ret.keys():
                     if os.getenv('TEST_RUN'):
-                        print('pass all cond.')
-                    ret[int(i['episode'])] = i['download']
+                        print('pass all cond. but episode %d existed' % (i['episode']))
+                    continue;
+                print('pass all cond.')
+                ret[int(i['episode'])] = i['download']
             return ret
         else:
             return {}
