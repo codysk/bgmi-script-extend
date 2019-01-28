@@ -84,7 +84,8 @@ class SearchScriptBase(ScriptBase):
                     if os.getenv('TEST_RUN'):
                         print('pass all cond. but episode %d existed' % (i['episode']))
                     continue;
-                print('pass all cond.')
+                if os.getenv('TEST_RUN'):
+                    print('pass all cond.')
                 ret[int(i['episode'])] = i['download']
             return ret
         else:
