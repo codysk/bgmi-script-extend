@@ -27,6 +27,15 @@ class SearchScriptBase(ScriptBase):
             r'(HEVC|MKV|H265)',
         ];
         """
+        pre_fetch_hooks = [
+            # method_name,
+        ]
+        post_fetch_hooks = [
+            # method_name,
+        ]
+        post_get_download_url_hooks = [
+            # method_name,
+        ]
     
     def regex_filter(self, title='', include_regex_filters=[], exclude_regex_filters=[]):
         for regex in include_regex_filters:
@@ -62,7 +71,26 @@ class SearchScriptBase(ScriptBase):
         if self.source is not None:
             source = self.get_source(self.source)
             ret = {}
+
+            # call pre_fetch_hooks
+            for method_name in self.Model.pre_fetch_hooks:
+                if os.getenv('TEST_RUN'):
+                    print("calling %s" % method_name)
+                method = getattr(self.Model, method_name)
+                method(self)
+                pass
+
+            # fetch
             data = source.search_by_keyword(self.Model.keyword)
+
+            # call post_fetch_hooks
+            for method_name in self.Model.post_fetch_hooks:
+                if os.getenv('TEST_RUN'):
+                    print("calling %s" % method_name)
+                method = getattr(self.Model, method_name)
+                method(self, data)
+                pass
+
             if os.getenv('TEST_RUN'):
                 print(data)
             for i in data:
@@ -87,6 +115,15 @@ class SearchScriptBase(ScriptBase):
                 if os.getenv('TEST_RUN'):
                     print('pass all cond.')
                 ret[int(i['episode'])] = i['download']
+
+            # call post_get_download_url_hooks
+            for method_name in self.Model.post_get_download_url_hooks:
+                if os.getenv('TEST_RUN'):
+                    print("calling %s" % method_name)
+                method = getattr(self.Model, method_name)
+                method(self, ret)
+                pass
+
             return ret
         else:
             return {}
