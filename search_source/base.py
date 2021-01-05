@@ -3,7 +3,6 @@ from __future__ import print_function, unicode_literals
 
 import pkgutil, sys
 from bgmi.website.base import BaseWebsite
-from bgmi.config import (MAX_PAGE, IS_PYTHON3)
 
 def get_available_search_source_list():
     for importer, modname, ispkg in pkgutil.iter_modules(sys.modules[__package__].__path__):
