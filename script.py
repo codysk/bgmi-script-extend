@@ -94,6 +94,8 @@ class SearchScriptBase(ScriptBase):
             if os.getenv('TEST_RUN'):
                 print(data)
             for i in data:
+                if not isinstance(i,dict):
+                    i = i.__dict__
                 if os.getenv('TEST_RUN'):
                     print(i['title'])
 
